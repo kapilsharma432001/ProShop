@@ -26,7 +26,7 @@ Include the following in your `package.json` file:
   "build": "react-scripts --openssl-legacy-provider build",
   "test": "react-scripts --openssl-legacy-provider test"
 }
-
+```
 
 ### ⚠️ Common Error: React must be in scope when using JSX"``
 
