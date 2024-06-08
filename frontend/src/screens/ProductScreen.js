@@ -11,13 +11,12 @@ import {
   Form,
 } from "react-bootstrap";
 import Rating from "../components/Rating";
-import products from "../products";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
 import { useParams } from "react-router-dom";
 import { listProductDetails } from "../actions/productActions";
 
-function ProductScreen({ match }) {
+function ProductScreen() {
   const navigate = useNavigate();
   const [qty, setQty] = useState(1);
   const { id } = useParams();
