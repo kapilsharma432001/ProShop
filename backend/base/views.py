@@ -44,6 +44,24 @@ class GetUserProfile(APIView):
         user = request.user
         serializer = UserSerializer(user, many=False)
         return Response(serializer.data)
+    
+@permission_classes([IsAuthenticated])
+class UpdateUserProfile(APIView):
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializerWithToken(user, many=False)
+        data = request.data
+
+        user.first_name = data['name']
+        user.username = data['email']
+        user.email = data['email']
+
+        if data['password'] !='':
+            user.password = make_password(data['password'])
+
+        user.save()  
+
+        return Response(serializer.data)
 
 class GetProducts(APIView):
     def get(self, request):
