@@ -33,6 +33,6 @@ Include the following in your `package.json` file:
 #### 🛠️ Solution:
 Import React at the top of your App.js file (or the file which is producing the error):
 
-import React from 'react';
+**import React from 'react';**
 
 
