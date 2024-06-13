@@ -15,6 +15,64 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 
 
+# For another API
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import Category, Question
+from .serializer import CategorySerializer, QuestionSerializer
+from django.db.models import Sum
+
+
+# For another project APIs
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from .models import Category, Question
+from .serializer import CategorySerializer, QuestionSerializer
+from django.db.models import Sum
+
+
+# For updating question responses
+class QuestionUpdateResponseView(APIView):
+    def post(self, request, pk):
+        question = get_object_or_404(Question, pk=pk)
+        response_type = request.data.get('response_type')
+
+        if response_type == 'positive':
+            question.positive_answers += 1
+        elif response_type == 'negative':
+            question.negative_answers += 1
+        else:
+            question.other_answers += 1
+
+        question.save()
+        return Response({'status': 'response updated'}, status=status.HTTP_200_OK)
+
+
+
+# Get category count
+class CategoryListView(APIView):
+    def get(self, request):
+        categories = Category.objects.all()
+        data = []
+
+        for category in categories:
+            positive_count = Question.objects.filter(category=category).aggregate(Sum('positive_answers'))['positive_answers__sum'] or 0
+            negative_count = Question.objects.filter(category=category).aggregate(Sum('negative_answers'))['negative_answers__sum'] or 0
+            other_count = Question.objects.filter(category=category).aggregate(Sum('other_answers'))['other_answers__sum'] or 0
+
+            data.append({
+                'category': category.name,
+                'positive': positive_count,
+                'negative': negative_count,
+                'other': other_count
+            })
+
+        return Response(data, status=status.HTTP_200_OK)
+
+###########################
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -95,7 +153,7 @@ class RegisterUser(APIView):
             return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
     
-@permission_classes([IsAdminUser, IsAuthenticated])
+
 class GetProduct(APIView):
     def get(self, request, pk):
        product = Product.objects.get(_id=pk)
