@@ -22,9 +22,14 @@ function CartScreen() {
     : 1;
 
   const dispatch = useDispatch();
+  const redirect = new URLSearchParams(location.search).get("redirect") || "/";
+
   const cart = useSelector((state) => state.cart);
   const { cartItems } = cart;
   console.log("Cart Items: ", cartItems);
+
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
   useEffect(() => {
     if (id) {
@@ -37,7 +42,11 @@ function CartScreen() {
   };
 
   const checkoutHandler = () => {
-    navigate("/login?redirect=shipping");
+    if (userInfo) {
+      navigate("/shipping");
+    } else {
+      navigate("/login");
+    }
   };
 
   return (

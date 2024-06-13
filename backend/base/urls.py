@@ -4,6 +4,12 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
 )
 
+# For another project APIs
+from django.urls import path
+from .views import QuestionUpdateResponseView, CategoryListView
+
+
+
 urlpatterns = [
     path("users/login/", MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path("user/register/", RegisterUser.as_view(), name='register'),
@@ -13,4 +19,9 @@ urlpatterns = [
     path("user/profile/", GetUserProfile.as_view(), name="user-profile"),
     path("user/profile/update/", UpdateUserProfile.as_view(), name="user-profile-update"),
     path("product/<str:pk>/", GetProduct.as_view(), name="product"),
+    path('questions/<int:pk>/update_responses/', QuestionUpdateResponseView.as_view(), name='question-update-responses'),
+    path('categories/', CategoryListView.as_view(), name='category-list'),
 ]
+
+
+

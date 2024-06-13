@@ -81,3 +81,22 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return str(self.address)
+
+
+
+# Models for another project
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class Question(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    text = models.TextField()
+    positive_answers = models.IntegerField(default=0)
+    negative_answers = models.IntegerField(default=0)
+    other_answers = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.text
