@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .products import products
-from .serializer import ProductSerializer, UserSerializer, UserSerializerWithToken
-from .models import Product
+from .serializer import ProductSerializer, UserSerializer, UserSerializerWithToken, OrderSerializer
+from .models import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.hashers import make_password
@@ -161,6 +161,55 @@ class GetProduct(APIView):
        return Response(serializer.data)
     
 
+class AddOrderItem(APIView):
+    def post(self, request):
+        user = request.user
+        data = request.data
+
+        orderItems = data["orderItems"]
+
+        if orderItems and len(orderItems) == 0:
+            return Response({"detail": "No order items"}, status=status.HTTP_400_BAD_REQUEST)    
+
+        # (1) Create Order
+
+        order = Order.objects.create(
+            user = user,
+            paymentMethod = data["paymentMethod"],
+            taxPrice = data["taxPrice"],
+            shippingPrice = data["shippingPrice"],
+            totalPrice = data["totalPrice"],
+        )
+
+        # (2) Create shipping address
+        shippingAddress = ShippingAddress.objects.create(
+            order = order,
+            address = data["shippingAddress"]["address"],
+            city = data["shippingAddress"]["city"],
+            postalCode = data["shippingAddress"]["postalCode"],
+            country = data["shippingAddress"]["country"],
+            shippingPrice = data["shippingPrice"]
+        )
+
+        # (3) Create order item and set order to orderItem relationship
+        for i in orderItems:
+            product = Product.objects.get(_id = i["product"])
+
+            orderItem = OrderItem.objects.create(
+                product = product,
+                order = order,
+                name = product.name,
+                qty = i['qty'],
+                price = i['price'],
+                image = product.image.url
+            )
+
+        # (4) Update stock
+        product.countInStock -= orderItem.qty
+        product.save()
+
+        serializer = OrderSerializer(order, many=False)
+        return Response({serializer.data}, status=status.HTTP_202_ACCEPTED)
 
     
     
